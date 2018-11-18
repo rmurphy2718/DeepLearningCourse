@@ -9,6 +9,9 @@ Requirement: Up to 4 pages in the NIPS format (see below) [4 pages on this forma
 
 
     Your submission may include figures/tables which graphically illustrate quantitative aspects of your results, such as training/testing error curves, learning curves, learned parameters, algorithm outputs, etc
+
+
+
     Your submission must include at least 2 references to previous published papers or book sections. Please include page numbers for all references to indicate that you actually looked at the paper you are referencing.
     Your submission should look like a short paper: include an introduction to motivate your problem and model, a section describing your approach (and how it compares to previous work if you are proposing something new), a section outlining the experiments you will be running for your final report and some preliminary results.
 
