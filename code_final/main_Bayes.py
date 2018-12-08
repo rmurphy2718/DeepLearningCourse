@@ -106,12 +106,13 @@ def train(args, epoch, net, trainloader, vi, train_size, learning_rate, batch_si
         # log.write(str(x.shape) + "\n")
         # log.write(str(y.shape) + "\n")
 
-        beta = 1.0 / float(batch_size)
-
         # Forward Propagation
         x, y = Variable(x), Variable(y)
         outputs, kl = net.probforward(x)
+
+        beta = 1.0 / float(batch_size)
         loss = vi(outputs, y, kl, beta)  # Loss
+
         optimizer.zero_grad()
         loss.backward()  # Backward Propagation
         optimizer.step()  # Optimizer update
@@ -147,12 +148,13 @@ def test(args, epoch, net, testloader, vi, testsize, batch_size):
             x, y = x.cuda(), y.cuda()
         with torch.no_grad():
             x, y = Variable(x), Variable(y)
+
         outputs, kl = net.probforward(x)
 
         beta = 1 / batch_size
 
 
-        loss = vi(outputs,y,kl,beta)
+        loss = vi(outputs, y, kl, beta)
 
         test_loss += loss.data[0]
         _, predicted = torch.max(outputs.data, 1)
@@ -160,10 +162,12 @@ def test(args, epoch, net, testloader, vi, testsize, batch_size):
         correct += predicted.eq(y.data).cpu().sum()
 
     # Save checkpoint when best model
-    acc =(100*correct/total)/args.num_samples
-    log.write("\n| Validation Epoch #%d\t\t\tLoss: %.4f Accuracy: %.2f%%" %(epoch, loss.data[0], acc))
-    test_diagnostics_to_write = {'Validation Epoch':epoch, 'Loss':loss.data[0], 'Accuracy': acc}
+    acc = (100*correct/total)/args.num_samples
+    log.write("\n| Validation Epoch #%d\n \t\t\tLoss: %.4f Accuracy: %.2f%%" %(epoch, loss.data[0], acc))
+    log.write("\n")
+    test_diagnostics_to_write = {'Validation Epoch': epoch, 'Loss':loss.item(), 'Accuracy': acc.item()}
     log.write(str(test_diagnostics_to_write))
+    log.write("\n")
     #
     # if acc > best_acc:
     #     log.write('| Saving Best model...\t\t\tTop1 = %.2f%%' %(acc))
@@ -213,7 +217,7 @@ def fit(args, train_loader, test_loader, suffix, log, num_epochs, train_size, te
 
         epoch_time = time.time() - start_time
         elapsed_time += epoch_time
-        log.write('| Elapsed time : %d:%02d:%02d  \n'  %(cf.get_hms(elapsed_time)))
+        log.write('\n| Elapsed time : %d:%02d:%02d  \n'  %(cf.get_hms(elapsed_time)))
 
 
         outpath = os.path.join(BASE_DIR, 'weights', 'w_{}'.format(suffix) + ".pt")
@@ -221,10 +225,6 @@ def fit(args, train_loader, test_loader, suffix, log, num_epochs, train_size, te
 
     plot_file = os.path.join(BASE_DIR, "output", suffix)
     save_plots(train_losses, val_losses, train_accs, val_accs, plot_file, num_epochs)
-
-    log.write('\n[Phase 4] : Testing model \n')
-    log.write('* Test results : Accuracy = %.2f%%  \n' %(best_acc))
-
 
 
 # ---------------------------------------------------
@@ -365,7 +365,6 @@ for ii in range(len(iterator)):
     fit(args, train_loader, test_loader, suffix, log,
         num_epochs, train_size, test_size, learning_rate, batch_size)
 
-    print('update dict, fool')
     log.write("\n")
     log.close()
 
