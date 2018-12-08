@@ -1,0 +1,1 @@
+CUDA_VISIBLE_DEVICES=0 python main_Bayes.py --num_samples=2 --config_integer=6 --num_folds=2
