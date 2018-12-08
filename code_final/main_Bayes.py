@@ -49,7 +49,7 @@ def save_plots(losses, _, train_accs, test_accs, outfile, num_epoch):
     ax.plot(xs, losses, '--', linewidth=2, label='loss')
     ax.set_xlabel("Epoch")
     ax.set_ylabel("Loss")
-    log.write("processing data....")
+    log.write("processing data....\n")
     ax.legend(loc='lower right')
     plt.savefig(outfile + "loss.png")
 
@@ -66,7 +66,7 @@ def save_plots(losses, _, train_accs, test_accs, outfile, num_epoch):
 
 
 # Return network & file name
-def getNetwork(args):
+def getNetwork(net_type):
     # if args.net_type == 'lenet':
     #     net = BBBLeNet(outputs,inputs)
     #     file_name = 'lenet'
@@ -76,10 +76,10 @@ def getNetwork(args):
     # elif args.net_type == 'squeezenet':
     #     net = BBBSqueezeNet(outputs,inputs)
     #     file_name = 'squeezenet-'
-    if args.net_type == '3conv3fc':
-        net = BBB3Conv3FC(outputs,inputs)
+    if net_type == '3conv3fc':
+        net = BBB3Conv3FC(outputs, inputs)
         file_name = '3Conv3FC-'
-    elif args.net_type == '2conv3fc':
+    elif net_type == '2conv3fc':
         net = BBB2Conv3FC(outputs,inputs)
         file_name = '2Conv3FC-'
     else:
@@ -94,20 +94,19 @@ def train(args, epoch, net, trainloader, vi, train_size, learning_rate, batch_si
     train_loss = 0
     correct = 0
     total = 0
-    m = math.ceil(train_size / batch_size)
     optimizer = optim.Adam(net.parameters(), lr=learning_rate, weight_decay=args.weight_decay)
 
-    log.write('\n=> Training Epoch #%d, LR=%.4f' %(epoch, cf.learning_rate(learning_rate, epoch)))
+    log.write('\n=> Training Epoch %d, LR=%.4f\n' %(epoch, cf.learning_rate(learning_rate, epoch)))
     for batch_idx, (inputs_value, targets) in enumerate(trainloader):
         x = inputs_value.view(-1, inputs, resize, resize).repeat(args.num_samples, 1, 1, 1)
         y = targets.repeat(args.num_samples)
         if use_cuda:
             x, y = x.cuda(), y.cuda() # GPU settings
 
-        log.write(str(x.shape))
-        log.write(str(y.shape))
+        # log.write(str(x.shape) + "\n")
+        # log.write(str(y.shape) + "\n")
 
-        beta = 1 / m
+        beta = 1.0 / float(batch_size)
 
         # Forward Propagation
         x, y = Variable(x), Variable(y)
@@ -123,14 +122,14 @@ def train(args, epoch, net, trainloader, vi, train_size, learning_rate, batch_si
         correct += predicted.eq(y.data).cpu().sum()
 
         log.write('\r')
-        log.write('| Epoch [%3d/%3d] Iter[%3d/%3d]\t\tLoss: %.4f Acc@1: %.3f%%'
+        log.write('| Epoch [%3d/%3d] Iter[%3d/%3d]\t\tLoss: %.4f Accuracy: %.3f%% \n'
                 %(epoch, num_epochs, batch_idx+1,
                     (train_size//batch_size)+1, loss.data[0], (100*correct/total)/args.num_samples))
 
     acc = (100 * correct / total) / args.num_samples
 
-    diagnostics_to_write =  {'Epoch': epoch, 'Loss': loss.data[0], 'Accuracy': (100*correct/total)/args.num_samples}
-    log.write(str(diagnostics_to_write))
+    diagnostics_to_write =  {'Epoch': epoch, 'Loss': loss.item(), 'Accuracy': acc.item()}
+    log.write(str(diagnostics_to_write) + "\n")
     log.flush()
 
     return loss, acc
@@ -141,7 +140,6 @@ def test(args, epoch, net, testloader, vi, testsize, batch_size):
     test_loss = 0
     correct = 0
     total = 0
-    m = math.ceil(testsize / batch_size)
     for batch_idx, (inputs_value, targets) in enumerate(testloader):
         x = inputs_value.view(-1, inputs, resize, resize).repeat(args.num_samples, 1, 1, 1)
         y = targets.repeat(args.num_samples)
@@ -151,7 +149,7 @@ def test(args, epoch, net, testloader, vi, testsize, batch_size):
             x, y = Variable(x), Variable(y)
         outputs, kl = net.probforward(x)
 
-        beta = 1 / m
+        beta = 1 / batch_size
 
 
         loss = vi(outputs,y,kl,beta)
@@ -163,7 +161,7 @@ def test(args, epoch, net, testloader, vi, testsize, batch_size):
 
     # Save checkpoint when best model
     acc =(100*correct/total)/args.num_samples
-    log.write("\n| Validation Epoch #%d\t\t\tLoss: %.4f Acc@1: %.2f%%" %(epoch, loss.data[0], acc))
+    log.write("\n| Validation Epoch #%d\t\t\tLoss: %.4f Accuracy: %.2f%%" %(epoch, loss.data[0], acc))
     test_diagnostics_to_write = {'Validation Epoch':epoch, 'Loss':loss.data[0], 'Accuracy': acc}
     log.write(str(test_diagnostics_to_write))
     #
@@ -186,10 +184,10 @@ def test(args, epoch, net, testloader, vi, testsize, batch_size):
 
 
 def fit(args, train_loader, test_loader, suffix, log, num_epochs, train_size, test_size, learning_rate, batch_size):
-    log.write('\n[Phase 2] : Model setup')
-    log.write('| Building net type [' + args.net_type + ']...')
+    log.write('\n[Phase 2] : Model setup\n')
+    log.write('| Building net type [' + args.net_type + ']...\n')
 
-    net, file_name = getNetwork(args)
+    net, file_name = getNetwork(args.net_type)
 
     if use_cuda:
         net.cuda()
@@ -215,18 +213,17 @@ def fit(args, train_loader, test_loader, suffix, log, num_epochs, train_size, te
 
         epoch_time = time.time() - start_time
         elapsed_time += epoch_time
-        log.write('| Elapsed time : %d:%02d:%02d'  %(cf.get_hms(elapsed_time)))
+        log.write('| Elapsed time : %d:%02d:%02d  \n'  %(cf.get_hms(elapsed_time)))
 
 
         outpath = os.path.join(BASE_DIR, 'weights', 'w_{}'.format(suffix) + ".pt")
         torch.save(net.state_dict(), outpath)
 
-
-    plot_file = os.path.join(BASE_DIR, "output", "suffix")
+    plot_file = os.path.join(BASE_DIR, "output", suffix)
     save_plots(train_losses, val_losses, train_accs, val_accs, plot_file, num_epochs)
 
-    log.write('\n[Phase 4] : Testing model')
-    log.write('* Test results : Acc@1 = %.2f%%' %(best_acc))
+    log.write('\n[Phase 4] : Testing model \n')
+    log.write('* Test results : Accuracy = %.2f%%  \n' %(best_acc))
 
 
 
@@ -252,8 +249,11 @@ parser.add_argument('--resume', '-r', action='store_true', help='resume from che
 parser.add_argument('--testOnly', '-t', action='store_true', help='Test mode with the saved model')
 parser.add_argument('--config_integer', type=int, help='Which hyperparm configuration setting')
 parser.add_argument('--num_folds', type=int, help='Number of folds in k-fold cross validation')
+parser.add_argument('--num_epochs', type=int, default=20, help='Number of epochs')
 # parser.add_argument('--batch_size', type=int, help='Minibatch size')
 args = parser.parse_args()
+
+assert args.dataset == "mnist", "Assuming MNIST for now."
 
 # ---------------------------------------------------
 # Set GPU stuff
@@ -264,7 +264,7 @@ torch.cuda.set_device(0)
 # Hyper and Global Parameter settings
 best_acc = 0
 resize = 32
-num_epochs = 20
+num_epochs = args.num_epochs
 optim_type = 'Adam'
 # Load the hyperparm dic.  It's in output b/c we'll put output stats in it.
 hyper_and_out = pickle.load(open(os.path.join(BASE_DIR, 'output', 'hyper_and_out.pkl'), 'rb'))
@@ -332,13 +332,6 @@ transform_test = transforms.Compose([
 #     outputs = 10
 #     inputs = 3
 
-
-
-
-# Training
-
-
-
 # ----------------------------------------------------------
 # Create a cross validation loader
 # Returns a 'training' loader with (k-1) folds and a 'test' loader with last fold
@@ -356,20 +349,24 @@ for ii in range(len(iterator)):
     logfile = os.path.join(BASE_DIR, 'logs', suffix + ".txt")
     log = open(logfile, 'w+')
 
-    log.write('\nTraining model {}'.format(ii))
-    log.write('| Training Epochs = ' + str(num_epochs))
-    log.write('| Initial Learning Rate = ' + str(learning_rate))
-    log.write('| Optimizer = ' + str(optim_type))
+    log.write("\n")
+    log.write("="*20)
+    log.write("\nFold {}".format(ii))
+    log.write("\n="*20)
+    log.write('\n| Training Epochs = ' + str(num_epochs) + "\n")
+    log.write('| Initial Learning Rate = ' + str(learning_rate) + "\n")
+    log.write('| Optimizer = ' + str(optim_type) + "\n")
 
-    log.write("processing data....")
+    log.write("processing data....\n")
     train_loader, test_loader, train_size, test_size = next(iterator)
-    log.write("done")
+    log.write("done\n")
     log.flush()
 
     fit(args, train_loader, test_loader, suffix, log,
         num_epochs, train_size, test_size, learning_rate, batch_size)
 
     print('update dict, fool')
+    log.write("\n")
     log.close()
 
 print("finished")
