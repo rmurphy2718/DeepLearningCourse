@@ -80,7 +80,7 @@ def getNetwork(net_type):
         net = BBB3Conv3FC(outputs, inputs)
         file_name = '3Conv3FC-'
     elif net_type == '2conv3fc':
-        net = BBB2Conv3FC(outputs,inputs)
+        net = BBB2Conv3FC(outputs, inputs)
         file_name = '2Conv3FC-'
     else:
         print('Error : Network not recognized')
@@ -117,7 +117,7 @@ def train(args, epoch, net, trainloader, vi, train_size, learning_rate, batch_si
         loss.backward()  # Backward Propagation
         optimizer.step()  # Optimizer update
 
-        train_loss += loss.data[0]
+        train_loss += loss.data.item()
         _, predicted = torch.max(outputs.data, 1)
         total += targets.size(0)
         correct += predicted.eq(y.data).cpu().sum()
@@ -125,7 +125,7 @@ def train(args, epoch, net, trainloader, vi, train_size, learning_rate, batch_si
         log.write('\r')
         log.write('| Epoch [%3d/%3d] Iter[%3d/%3d]\t\tLoss: %.4f Accuracy: %.3f%% \n'
                 %(epoch, num_epochs, batch_idx+1,
-                    (train_size//batch_size)+1, loss.data[0], (100*correct/total)/args.num_samples))
+                    (train_size//batch_size)+1, loss.data.item(), (100*correct/total)/args.num_samples))
 
     acc = (100 * correct / total) / args.num_samples
 
@@ -156,14 +156,14 @@ def test(args, epoch, net, testloader, vi, testsize, batch_size):
 
         loss = vi(outputs, y, kl, beta)
 
-        test_loss += loss.data[0]
+        test_loss += loss.data.item()
         _, predicted = torch.max(outputs.data, 1)
         total += targets.size(0)
         correct += predicted.eq(y.data).cpu().sum()
 
     # Save checkpoint when best model
     acc = (100*correct/total)/args.num_samples
-    log.write("\n| Validation Epoch #%d\n \t\t\tLoss: %.4f Accuracy: %.2f%%" %(epoch, loss.data[0], acc))
+    log.write("\n| Validation Epoch #%d\n \t\t\tLoss: %.4f Accuracy: %.2f%%" %(epoch, loss.data.item(), acc))
     log.write("\n")
     test_diagnostics_to_write = {'Validation Epoch': epoch, 'Loss':loss.item(), 'Accuracy': acc.item()}
     log.write(str(test_diagnostics_to_write))
@@ -254,6 +254,15 @@ parser.add_argument('--num_epochs', type=int, default=20, help='Number of epochs
 args = parser.parse_args()
 
 assert args.dataset == "mnist", "Assuming MNIST for now."
+assert args.net_type in ("3conv3fc", "2conv3fc"), "Invalid network type"
+
+if args.net_type == "3conv3fc":
+    print("Using the FULL architecture")
+else:
+    print("Using the PRUNED architecture")
+
+# Give time to quit if user entered wrong architecture
+time.sleep(5)
 
 # ---------------------------------------------------
 # Set GPU stuff
@@ -345,14 +354,21 @@ iterator = iter(cross_valid_loader)
 
 
 for ii in range(len(iterator)):
+    # Files get similar names but are put in different directories
+    # Directory is prefix, name is suffix
     suffix = 'setting_{}_fold_{}'.format(args.config_integer, ii)
+    # prepend indication of pruned model
+    if args.net_type == '2conv3fc':
+        suffix = "pruned_" + suffix
+
     logfile = os.path.join(BASE_DIR, 'logs', suffix + ".txt")
     log = open(logfile, 'w+')
 
     log.write("\n")
     log.write("="*20)
     log.write("\nFold {}".format(ii))
-    log.write("\n="*20)
+    log.write("\n")
+    log.write("="*20)
     log.write('\n| Training Epochs = ' + str(num_epochs) + "\n")
     log.write('| Initial Learning Rate = ' + str(learning_rate) + "\n")
     log.write('| Optimizer = ' + str(optim_type) + "\n")
@@ -369,21 +385,4 @@ for ii in range(len(iterator)):
     log.close()
 
 print("finished")
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 

@@ -19,10 +19,10 @@ class BBB2Conv3FC(nn.Module):
 
         #self.conv3 = BBBConv2d(64, 128, 5, stride=1, padding=1)
         #self.soft3 = nn.Softplus()
-        self.pool3 = nn.MaxPool2d(kernel_size=3, stride=2)
+        #self.pool3 = nn.MaxPool2d(kernel_size=3, stride=2)
 
-        self.flatten = FlattenLayer(2 * 2 * 64)
-        self.fc1 = BBBLinearFactorial(2 * 2 * 64, 1000)
+        self.flatten = FlattenLayer(6 * 6 * 64)
+        self.fc1 = BBBLinearFactorial(6 * 6 * 64, 1000)
         self.soft5 = nn.Softplus()
 
         self.fc2 = BBBLinearFactorial(1000, 1000)
@@ -30,7 +30,7 @@ class BBB2Conv3FC(nn.Module):
 
         self.fc3 = BBBLinearFactorial(1000, outputs)
         layers = [self.conv1, self.soft1, self.pool1, self.conv2, self.soft2, self.pool2,
-                  self.pool3, self.flatten, self.fc1, self.soft5,
+                  self.flatten, self.fc1, self.soft5,
                   self.fc2, self.soft6, self.fc3]
 
         self.layers = nn.ModuleList(layers)
@@ -38,7 +38,6 @@ class BBB2Conv3FC(nn.Module):
     def probforward(self, x):
         'Forward pass with Bayesian weights'
         kl = 0
-        print('forwarding--------------')
         for layer in self.layers:
             if hasattr(layer, 'convprobforward') and callable(layer.convprobforward):
                 x, _kl, = layer.convprobforward(x)
@@ -50,8 +49,8 @@ class BBB2Conv3FC(nn.Module):
             else:
                 x = layer(x)
                 logits = x
-            print(x.shape)
+            #print(x.shape)
 
-        print('logits', logits)
-        print("done---------------------")
+        #print('logits', logits)
+        #print("done---------------------")
         return logits, kl
