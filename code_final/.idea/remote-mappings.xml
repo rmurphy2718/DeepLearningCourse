@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="RemoteMappingsManager">
+    <list>
+      <list>
+        <remote-mappings server-id="python@sftp://murph213@ml07.cs.purdue.edu:22/homes/murph213/interpret_wrapper_ml07.sh" />
+      </list>
+    </list>
+  </component>
+</project>
