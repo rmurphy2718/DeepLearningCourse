@@ -86,6 +86,11 @@ def getNetwork(net_type):
         print('Error : Network not recognized')
         sys.exit(0)
 
+    model_parameters = filter(lambda ppp: ppp.requires_grad, net.parameters())
+    num_params = sum([np.prod(ppp.size()) for ppp in model_parameters])
+
+    print(num_params)
+
     return net, file_name
 
 
@@ -153,7 +158,6 @@ def test(args, epoch, net, testloader, vi, testsize, batch_size):
 
         beta = 1 / batch_size
 
-
         loss = vi(outputs, y, kl, beta)
 
         test_loss += loss.data.item()
@@ -162,10 +166,12 @@ def test(args, epoch, net, testloader, vi, testsize, batch_size):
         correct += predicted.eq(y.data).cpu().sum()
 
     # Save checkpoint when best model
-    acc = (100*correct/total)/args.num_samples
+    # print(correct)
+    # print(total)
+    acc = (100.0*float(correct)/float(total))/float(args.num_samples)
     log.write("\n| Validation Epoch #%d\n \t\t\tLoss: %.4f Accuracy: %.2f%%" %(epoch, loss.data.item(), acc))
     log.write("\n")
-    test_diagnostics_to_write = {'Validation Epoch': epoch, 'Loss':loss.item(), 'Accuracy': acc.item()}
+    test_diagnostics_to_write = {'Validation Epoch': epoch, 'Loss':loss.item(), 'Accuracy': acc}
     log.write(str(test_diagnostics_to_write))
     log.write("\n")
     #
