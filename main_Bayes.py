@@ -1,3 +1,10 @@
+"""
+Course project for deep learning, Ryan Murphy and Jincheng Bai
+Evaluating the benefits observed in BBB for Bayesian feedforward networks
+applied to Convolutional Neural Networks
+"""
+
+
 from __future__ import print_function
 
 import os
@@ -5,42 +12,30 @@ import sys
 import time
 import numpy as np
 import argparse
-import datetime
-import math
 import pickle
 import matplotlib
-
-matplotlib.use('Agg')
 import matplotlib.pyplot as plt
-
-import torchvision
 import torchvision.transforms as transforms
 
 import torch
-import torch.utils.data as data
 import torch.nn as nn
 import torch.optim as optim
-import torch.nn.functional as F
-import torch.backends.cudnn as cudnn
 from torch.autograd import Variable
-
 import bayesian_config as cf
 
-from utils.BBBlayers import GaussianVariationalInference
-from utils.BayesianModels.Bayesian3Conv3FC import BBB3Conv3FC
-from utils.BayesianModels.Bayesian2Conv3FC import BBB2Conv3FC
-from utils.Cross_Validation_Loader import CrossValidationLoader
-#from utils.BayesianModels.ByesianAlexNet import BBBAlexNet
-#from utils.BayesianModels.BayesianLeNet import BBBLeNet
-#from utils.BayesianModels.BayesianSqueezeNet import BBBSqueezeNet
+from BBB.BBBlayers import GaussianVariationalInference
+from BBB.BayesianModels.Bayesian3Conv3FC import BBB3Conv3FC
+from BBB.BayesianModels.Bayesian2Conv3FC import BBB2Conv3FC
+from BBB.Cross_Validation_Loader import CrossValidationLoader
+
+matplotlib.use('Agg')
+
 
 BASE_DIR = '/homes/murph213/DeepLearning/code_final/'
 
-def save_plots(losses, _, train_accs, test_accs, outfile, num_epoch):
-    """Plot
 
-        Plot two figures: loss vs. epoch and accuracy vs. epoch
-    """
+def save_plots(losses, _, train_accs, test_accs, outfile, num_epoch):
+    """Plot two figures: loss vs. epoch and accuracy vs. epoch"""
     n = len(losses)
     xs = np.arange(n)
 
@@ -65,17 +60,9 @@ def save_plots(losses, _, train_accs, test_accs, outfile, num_epoch):
     plt.close()
 
 
-# Return network & file name
+
 def getNetwork(net_type):
-    # if args.net_type == 'lenet':
-    #     net = BBBLeNet(outputs,inputs)
-    #     file_name = 'lenet'
-    # elif args.net_type == 'alexnet':
-    #     net = BBBAlexNet(outputs,inputs)
-    #     file_name = 'alexnet-'
-    # elif args.net_type == 'squeezenet':
-    #     net = BBBSqueezeNet(outputs,inputs)
-    #     file_name = 'squeezenet-'
+    """ Return network & file name"""
     if net_type == '3conv3fc':
         net = BBB3Conv3FC(outputs, inputs)
         file_name = '3Conv3FC-'
@@ -273,7 +260,8 @@ time.sleep(5)
 # ---------------------------------------------------
 # Set GPU stuff
 use_cuda = torch.cuda.is_available()
-torch.cuda.set_device(0)
+if use_cuda:
+    torch.cuda.set_device(0)
 
 
 # Hyper and Global Parameter settings
@@ -305,47 +293,6 @@ transform_test = transforms.Compose([
     transforms.ToTensor(),
     transforms.Normalize(cf.mean[args.dataset], cf.std[args.dataset]),
 ])
-
-# ASSUMING MNIST
-#
-# if (args.dataset == 'cifar10'):
-#     print("| Preparing CIFAR-10 dataset...")
-#     sys.stdout.write("| ")
-#     trainset = torchvision.datasets.CIFAR10(root='./data', train=True, download=True, transform=transform_train)
-#     testset = torchvision.datasets.CIFAR10(root='./data', train=False, download=False, transform=transform_test)
-#     outputs = 10
-#     inputs = 3
-#
-# elif (args.dataset == 'cifar100'):
-#     print("| Preparing CIFAR-100 dataset...")
-#     sys.stdout.write("| ")
-#     trainset = torchvision.datasets.CIFAR100(root='./data', train=True, download=True, transform=transform_train)
-#     testset = torchvision.datasets.CIFAR100(root='./data', train=False, download=False, transform=transform_test)
-#     outputs = 100
-#     inputs = 3
-#
-# elif (args.dataset == 'mnist'):
-#     print("| Preparing MNIST dataset...")
-#     sys.stdout.write("| ")
-#     trainset = torchvision.datasets.MNIST(root='./data', train=True, download=True, transform=transform_train)
-#     testset = torchvision.datasets.MNIST(root='./data', train=False, download=False, transform=transform_test)
-#     outputs = 10
-#     inputs = 1
-#
-# elif (args.dataset == 'fashionmnist'):
-#     print("| Preparing FASHIONMNIST dataset...")
-#     sys.stdout.write("| ")
-#     trainset = torchvision.datasets.FashionMNIST(root='./data', train=True, download=True, transform=transform_train)
-#     testset = torchvision.datasets.FashionMNIST(root='./data', train=False, download=False, transform=transform_test)
-#     outputs = 10
-#     inputs = 1
-# elif (args.dataset == 'stl10'):
-#     print("| Preparing STL10 dataset...")
-#     sys.stdout.write("| ")
-#     trainset = torchvision.datasets.STL10(root='./data',  split='train', download=True, transform=transform_train)
-#     testset = torchvision.datasets.STL10(root='./data',  split='test', download=False, transform=transform_test)
-#     outputs = 10
-#     inputs = 3
 
 # ----------------------------------------------------------
 # Create a cross validation loader

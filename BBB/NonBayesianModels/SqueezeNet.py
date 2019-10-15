@@ -1,7 +1,7 @@
 import torch.nn as nn
 import torch.nn.functional as F
 import numpy as np
-from utils.BBBlayers import FlattenLayer
+from BBB.BBBlayers import FlattenLayer
 
 
 def conv_init(m):

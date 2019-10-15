@@ -1,11 +1,13 @@
 ############### Configuration file ###############
 """
+mostly code from Bayes CNN authors
+
 Ryan Murphy's changes:
 create a dictionary of hyperparameters and their respective keys
 """
 import math
 
-
+# Use for transformations
 mean = {
     'cifar10': (0.4914, 0.4822, 0.4465),
     'cifar100': (0.5071, 0.4867, 0.4408),

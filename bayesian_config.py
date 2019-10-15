@@ -1,4 +1,8 @@
 ############### Configuration file ###############
+"""
+From authors of Bayes CNN
+"""
+
 import math
 
 # start_epoch = 1

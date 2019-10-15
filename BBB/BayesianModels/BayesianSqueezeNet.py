@@ -1,5 +1,5 @@
 import torch.nn as nn
-from utils.BBBlayers import BBBConv2d, FlattenLayer, BBBLinearFactorial
+from BBB.BBBlayers import BBBConv2d, FlattenLayer, BBBLinearFactorial
 
 
 class BBBSqueezeNet(nn.Module):

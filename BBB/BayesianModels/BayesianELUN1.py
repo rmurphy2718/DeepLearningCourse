@@ -1,5 +1,5 @@
 import torch.nn as nn
-from utils.BBBlayers import BBBConv2d, BBBLinearFactorial, FlattenLayer
+from BBB.BBBlayers import BBBConv2d, BBBLinearFactorial, FlattenLayer
 
 class BBBELUN1(nn.Module):
     """

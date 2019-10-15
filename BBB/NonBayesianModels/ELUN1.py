@@ -1,5 +1,5 @@
 import torch.nn as nn
-from utils.BBBlayers import FlattenLayer
+from BBB.BBBlayers import FlattenLayer
 
 class ELUN1(nn.Module):
     """

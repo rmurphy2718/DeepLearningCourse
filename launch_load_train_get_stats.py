@@ -1,5 +1,8 @@
 """
+Course project for deep learning, Ryan Murphy and Jincheng Bai
+
 Launcher program for launch_load_train_get_stats.py
+quick and simple approach
 """
 f = open('/homes/murph213/DeepLearning/code_final/launch_load_train_get_stats.sh', 'w')
 f.write("cd /homes/murph213/DeepLearning/code_final")

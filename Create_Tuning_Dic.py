@@ -7,6 +7,8 @@ Simple file creates a dictionary on disk which will originally store
 Later:
 (3) Accuracy at each fold
 (4) Distribution of Signal to Noise Ratio
+
+This is a quick and simple approach, could have also used JSON
 """
 
 import os

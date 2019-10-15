@@ -1,23 +1,22 @@
 # Course Project: Variational Inference for Convolutional Neural Networks
 
-In this course project, we evaluate weight pruning in a Bayesian Convolutional Neural Network fit with a [Bayes-by-Backprop](https://arxiv.org/abs/1505.05424) approach.
-We follow the [GitHub code](https://github.com/felix-laumann/Bayesian_CNN) provided by the authors of Bayesian CNN: *K. Shridhar, and F. Laumann, and A. Llopart Maurin, A. and M. Liwicki* (please see bibtex below)
-	{Liwicki}, M.
+A Bayesian approach to training neural networks can come with benefits such
+as natural weight regularization, straightforward approaches for weight pruning,
+and making prediction more uncertain in regions with sparse training data. Previous work showed that feedforward networks could be trained in the Bayesian
+framework via a backpropagation strategy (Bayes by Backprop) and demonstrated
+the aforementioned benefits experimentally. A recent paper extended the method
+to Convolutional Neural Networks but did not explore whether said advantages
+carry over to CNNs. We evaluated them here.  
+
+Bayes by Backprop is explained in the ICML 2015 paper [Weight Uncertainty in Neural Networks](https://arxiv.org/abs/1505.05424).
+We modify the GitHub code provided by the authors of [Bayesian Convolutional Neural Networks](https://arxiv.org/abs/1806.05978v4), which was available on [GitHub](https://github.com/felix-laumann/Bayesian_CNN) but has been removed. 
+	
+(Fall 2018)
 
 ### Authors
 
-Ryan Murphy, Jincheng Bai.  
-```
-@ARTICLE{2018arXiv180605978S,
-   author = {{Shridhar}, K. and {Laumann}, F. and {Llopart Maurin}, A. and 
-	{Liwicki}, M.},
-    title = "{Bayesian Convolutional Neural Networks}",
-  journal = {ArXiv e-prints},
-archivePrefix = "arXiv",
-   eprint = {1806.05978},
- keywords = {Computer Science - Machine Learning, Computer Science - Computer Vision and Pattern Recognition, Computer Science - Neural and Evolutionary Computing, Statistics - Machine Learning},
-     year = 2018,
-    month = jun,
-   adsurl = {http://adsabs.harvard.edu/abs/2018arXiv180605978S},
-  adsnote = {Provided by the SAO/NASA Astrophysics Data System}
-}
+Ryan L. Murphy, Jincheng Bai.  
+
+### Code
+We use PyTorch version 0.4.1.
+ 

@@ -1,6 +1,6 @@
 
 import torch.nn as nn
-from utils.BBBlayers import BBBConv2d, BBBLinearFactorial, FlattenLayer
+from BBB.BBBlayers import BBBConv2d, BBBLinearFactorial, FlattenLayer
 
 
 class BBBAlexNet(nn.Module):
