@@ -1,4 +1,4 @@
-# Course Project: Variational Inference for Convolutional Neural Networks
+# Course Project: Variational Inference in Convolutional Neural Networks
 
 A Bayesian approach to training neural networks can come with benefits such
 as natural weight regularization, straightforward approaches for weight pruning,
